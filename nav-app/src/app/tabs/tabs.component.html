@@ -382,6 +382,25 @@
                     </mat-form-field>
                 </div>
             </mat-expansion-panel>
+
+            <mat-expansion-panel #newlayer>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Open Layers
+                    </mat-panel-title>
+                    <mat-panel-description>
+                        Select client layer
+                    </mat-panel-description>
+                </mat-expansion-panel-header>
+
+                <!-- Client custom function -->
+                <table class="btn-group" role="group">                        
+                    <ng-template ngFor let-client [ngForOf]="this.clients" let-domainIndex="index">
+                        <td><button mat-raised-button (click)="loadLayerFromURL('http://localhost:53680/', 'true', client.ruid)">{{client.name}}</button></td>
+                    </ng-template>
+                </table>
+                    
+            </mat-expansion-panel>
         </mat-accordion>
 
         <!-- Help dialog -->

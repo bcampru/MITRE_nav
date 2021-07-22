@@ -85,6 +85,15 @@ o888     88 o888   888o 8888o  88  88  888  88  888    888 o888   888o 888      
                 layer controls
             </div>
 
+            <div *ngIf="configService.getFeature('download_layer')" class="control-row-item">
+                <div class="control-row-button noselect"
+                    (click)="saveClient()"
+                    matTooltipPosition="below"
+                    matTooltip="save layer">
+                    <img src="assets/icons/ic_file_download_black_24px.svg" alt="save layer"/>
+                </div>
+            </div>
+
             <!-- layer name, description and metadata -->
             <div *ngIf="configService.getFeature('layer_info')" class="control-row-item">
 

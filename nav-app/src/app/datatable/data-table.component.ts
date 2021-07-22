@@ -19,6 +19,9 @@ import { ColorPickerModule } from 'ngx-color-picker';
 import { TechniquesSearchComponent } from '../techniques-search/techniques-search.component';
 import { TmplAstVariable } from '@angular/compiler';
 
+import { HttpClient } from '@angular/common/http';
+import { Http } from '@angular/http';
+
 @Component({
     selector: 'DataTable',
     templateUrl: './data-table.component.html',
@@ -65,6 +68,18 @@ export class DataTableComponent implements AfterViewInit {
             downloadLink.click();
             document.body.removeChild(downloadLink);
         }
+    }
+
+    saveClient(): Promise<any>{
+        var json = this.viewModel.serialize();
+        let savePromise: Promise<any> = new Promise((resolve, reject) => {
+            let subscription = this.http.post("http://localhost:53680/index.php", json).subscribe({
+                next: (res) => {resolve(null);},
+                error: (err) => {resolve(null);},
+                complete: () => { if (subscription) subscription.unsubscribe(); }
+            });
+        });
+        return savePromise;
     }
 
     /////////////////////////////
@@ -238,7 +253,8 @@ export class DataTableComponent implements AfterViewInit {
                 private tabs: TabsComponent, 
                 private sanitizer: DomSanitizer, 
                 private viewModelsService: ViewModelsService, 
-                public configService: ConfigService) { }
+                public configService: ConfigService,
+                private http: HttpClient) { }
 
     /**
      * Angular lifecycle hook

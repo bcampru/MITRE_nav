@@ -9,8 +9,9 @@ import { ExporterComponent } from '../exporter/exporter.component';
 import { ViewModelsService, ViewModel } from "../viewmodels.service";
 
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import * as globals from './../globals';
+
 
 declare var math: any; //use mathjs
 
@@ -34,14 +35,15 @@ export class TabsComponent implements AfterContentInit, AfterViewInit {
     activeTab: Tab = null;
     layerTabs: Tab[] = [];
     techniques: Technique[] = [];
-
     alwaysUpgradeVersion: boolean;
     nav_version = globals.nav_version;
+    clients;
 
     constructor(private dialog: MatDialog, private viewModelsService: ViewModelsService, private dataService: DataService, private http: HttpClient, private configService: ConfigService) {
         console.log("tabs component initializing");
         this.ds = dataService;
         this.viewModelsService = viewModelsService;
+        
     }
 
     @ViewChild('safariWarning') safariWarning : TemplateRef<any>;
@@ -65,6 +67,30 @@ export class TabsComponent implements AfterContentInit, AfterViewInit {
             complete: () => { if (subscription) subscription.unsubscribe(); } //prevent memory leaks
         });
     }
+
+    
+    ngOnInit() {
+        this.getOptions();
+    }
+    
+    getOptions() {
+        const promise = new Promise((resolve, reject) => {
+            this.http
+                .options('http://localhost:53680/')
+                .toPromise()
+                .then((res: any) => {
+                        this.clients = (typeof(res) == "string")? JSON.parse(res) : res;
+                        resolve("done");
+                    },
+                    err => {
+                        // Error
+                        reject(err);
+                    }
+                );
+        });
+        return promise;
+    }
+
 
     public safariDialogRef;
     ngAfterViewInit() {
@@ -236,6 +262,7 @@ export class TabsComponent implements AfterContentInit, AfterViewInit {
     filterDomains(version: string) {
         return this.dataService.domains.filter((d) => d.version === version)
     }
+
 
     hasFeature(featureName: string): boolean {
         return this.configService.getFeature(featureName);
@@ -561,10 +588,11 @@ export class TabsComponent implements AfterContentInit, AfterViewInit {
     /**
      * attempt an HTTP GET to loadURL, and load the response (if it exists) as a layer.
      */
-    loadLayerFromURL(loadURL, replace): Promise<any> {
+    loadLayerFromURL(loadURL, replace, ruid=""): Promise<any> {
         let layerPromise: Promise<any> = new Promise((resolve, reject) => {
             // if (!loadURL.startsWith("http://") && !loadURL.startsWith("https://") && !loadURL.startsWith("FTP://")) loadURL = "https://" + loadURL;
-            let subscription = this.http.get(loadURL).subscribe({
+            let params = new HttpParams().set('ruid', ruid);
+            let subscription = this.http.get(loadURL, {params: params}).subscribe({
                 next: (res) => {
                     let viewModel = this.viewModelsService.newViewModel("loading layer...", undefined);
                     try {

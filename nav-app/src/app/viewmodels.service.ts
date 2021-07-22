@@ -346,6 +346,7 @@ export class ViewModel {
     domainID: string; // layer domain & version
     description: string = ""; //layer description
     uid: string; //unique identifier for this ViewModel. Do not serialize, let it get initialized by the VmService
+    ruid: string;
 
     filters: Filter;
 
@@ -388,6 +389,7 @@ export class ViewModel {
         this.filters = new Filter();
         this.name = name;
         this.uid = uid;
+        this.ruid = "";
     }
 
     loadVMData() {
@@ -1072,6 +1074,8 @@ export class ViewModel {
         rep.legendItems = JSON.parse(JSON.stringify(this.legendItems));
         rep.metadata = this.metadata.filter((m)=>m.valid()).map((m) => m.serialize());
 
+        rep.ruid = this.ruid;
+
         rep.showTacticRowBackground = this.showTacticRowBackground;
         rep.tacticRowBackground = this.tacticRowBackground;
         rep.selectTechniquesAcrossTactics = this.selectTechniquesAcrossTactics;
@@ -1084,9 +1088,11 @@ export class ViewModel {
      * restore the domain and version from a string
      * @param rep string to restore from
      */
+
     deSerializeDomainID(rep: any): void {
         let obj = (typeof(rep) == "string")? JSON.parse(rep) : rep
         this.name = obj.name
+        this.ruid = obj.ruid;
         this.version = this.dataService.getCurrentVersion(); // layer with no specified version defaults to current version
         if ("versions" in obj) {
             if ("attack" in obj.versions) {
@@ -1119,6 +1125,8 @@ export class ViewModel {
      */
     deSerialize(rep: any): void {
         let obj = (typeof(rep) == "string")? JSON.parse(rep) : rep
+
+        this.ruid = obj.ruid;
 
         if ("description" in obj) {
             if (typeof(obj.description) === "string") this.description = obj.description;
